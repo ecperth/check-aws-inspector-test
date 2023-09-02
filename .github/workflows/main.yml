@@ -1,0 +1,45 @@
+on: push
+
+jobs:
+  test-amazon-inspector-check-action:
+    runs-on: ubuntu-latest
+    name: Test amazon-inspector-check
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: Dockerfile
+          sparse-checkout-cone-mode: false
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::500458529859:role/github-iam-role
+          aws-region: ap-southeast-2
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: true
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: amazon-inspector-check-test
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Check results of amazon inspect on image
+        id: amazon-inspector-check
+        uses: ecperth/amazon-inspector-check@v0.1
+        with:
+          repository: amazon-inspector-check-test
+          tag:        latest
+
+      - name: Get the output time
+        run: echo "${{ steps.amazon-inspector-check.outputs.image }}"
