@@ -6,7 +6,7 @@ terraform {
     }
   }
 	backend "s3" {
-    bucket 	= "amazon-inspector-check-test-tf-state"
+    bucket 	= "check-aws-inspector-test-tf-state"
 		key 		= "state"
     region 	= "ap-southeast-2"
   }
@@ -19,7 +19,7 @@ provider "aws" {
 
 //---ECR---
 resource "aws_ecr_repository" "amazon_inspector_check_test" {
-  name                 = "amazon-inspector-check-test"
+  name                 = "check-aws-inspector-test"
   image_tag_mutability = "MUTABLE"
 }
 
@@ -29,7 +29,7 @@ resource "aws_ecr_registry_scanning_configuration" "test" {
   rule {
     scan_frequency = "SCAN_ON_PUSH"
     repository_filter {
-      filter      = "amazon-inspector-check-test"
+      filter      = "check-aws-inspector-test"
       filter_type = "WILDCARD"
     }
   }
@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "github_iam_policy_document" {
    	condition {
     	test     = "StringLike"
  			variable = "token.actions.githubusercontent.com:sub"
-     	values   = ["repo:ecperth/amazon-inspector-check-test:*"]
+     	values   = ["repo:ecperth/check-aws-inspector-test:*"]
    	}
  	}
 }

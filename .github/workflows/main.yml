@@ -1,9 +1,9 @@
 on: push
 
 jobs:
-  test-amazon-inspector-check-action:
+  test-check-aws-inspector-action:
     runs-on: ubuntu-latest
-    name: Test amazon-inspector-check
+    name: Test check-aws-inspector
     permissions:
       id-token: write
       contents: read
@@ -29,17 +29,17 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: amazon-inspector-check-test
+          ECR_REPOSITORY: check-aws-inspector-test
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
       - name: Check results of amazon inspect on image
-        id: amazon-inspector-check
-        uses: ecperth/amazon-inspector-check@v0.1
+        id: check-aws-inspector
+        uses: ecperth/check-aws-inspector@v0.1
         with:
-          repository: amazon-inspector-check-test
+          repository: check-aws-inspector-test
           tag:        latest
 
       - name: Get the output time
-        run: echo "${{ steps.amazon-inspector-check.outputs.image }}"
+        run: echo "${{ steps.check-aws-inspector.outputs.image }}"
