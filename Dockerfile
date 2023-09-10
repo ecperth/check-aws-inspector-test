@@ -1,3 +1,3 @@
 FROM amazonlinux:2023
 
-RUN rpm install curl
+RUN yum install -y nodejs
