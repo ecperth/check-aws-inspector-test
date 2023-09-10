@@ -30,16 +30,17 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: check-aws-inspector-test
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Check results of amazon inspect on image
         id: check-aws-inspector
         uses: ecperth/check-aws-inspector@v0.1
         with:
           repository: check-aws-inspector-test
-          tag:        latest
+          tag:        ${{ github.sha }}
 
       - name: Get the output time
         run: echo "${{ steps.check-aws-inspector.outputs.image }}"
