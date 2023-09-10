@@ -1,1 +1,1 @@
-FROM node:14
+FROM amazonlinux:2023

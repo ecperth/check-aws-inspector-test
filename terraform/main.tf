@@ -17,11 +17,25 @@ provider "aws" {
   region  = "ap-southeast-2"
 }
 
+//---ECR---
 resource "aws_ecr_repository" "amazon_inspector_check_test" {
   name                 = "amazon-inspector-check-test"
   image_tag_mutability = "MUTABLE"
 }
 
+resource "aws_ecr_registry_scanning_configuration" "test" {
+  scan_type = "ENHANCED"
+
+  rule {
+    scan_frequency = "SCAN_ON_PUSH"
+    repository_filter {
+      filter      = "amazon-inspector-check-test"
+      filter_type = "WILDCARD"
+    }
+  }
+}
+
+//---OPENID---
 resource "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
 
@@ -32,6 +46,7 @@ resource "aws_iam_openid_connect_provider" "github" {
   thumbprint_list = ["1c58a3a8518e8759bf075b76b750d4f2df264fcd"]
 }
 
+//---IAM---
 data "aws_iam_policy_document" "github_iam_policy_document" {
  	statement {
   	effect  = "Allow"
@@ -66,6 +81,12 @@ data "aws_iam_policy_document" "github_role_ecr_policy_document" {
     actions   = ["ecr:*"]
     resources = [aws_ecr_repository.amazon_inspector_check_test.arn]
   }
+  statement {
+		sid 			= "AllowAwsInspectAccess"
+    effect    = "Allow"
+    actions   = ["inspector2:ListCoverage", "inspector2:ListFindings"]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_policy" "github_role_ecr_policy" {
@@ -78,4 +99,12 @@ resource "aws_iam_policy_attachment" "github_role_ecr_policy_attachment" {
   name       = "github-role-ecr-policy-attachment"
   roles      = [aws_iam_role.github_iam_role.name]
   policy_arn = aws_iam_policy.github_role_ecr_policy.arn
+}
+
+//---AMAZON-INSPECT---
+data "aws_caller_identity" "current" {}
+
+resource "aws_inspector2_enabler" "enable_aws_inspector" {
+  account_ids    = [data.aws_caller_identity.current.account_id]
+  resource_types = ["ECR"]
 }
