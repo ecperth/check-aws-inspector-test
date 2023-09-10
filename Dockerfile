@@ -1,3 +1,3 @@
 FROM amazonlinux:2023
 
-RUN npm install typescript
+RUN rpm install curl
