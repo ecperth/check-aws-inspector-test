@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "role_ecr_policy_document" {
       "ecr:PutImage",
       "ecr:DescribeImageScanFindings"
     ]
-    resources = [var.ecr_role_arn]
+    resources = [aws_ecr_repository.check_aws_inspector_test.arn]
   }
   statement {
     sid       = "AllowAwsInspectAccess"

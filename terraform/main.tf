@@ -26,6 +26,5 @@ module "aws_github_oidc_iam_user" {
 module "aws_inspector_enabled_ecr" {
   source        = "./modules/aws_inspector_enabled_ecr"
   ecr_repo_name = "check-aws-inspector-test"
-  ecr_role_name = module.aws_github_oidc_iam_user.iam_role.name
-  ecr_role_arn  = module.aws_github_oidc_iam_user.iam_role.name
+  ecr_role_name = module.aws_github_oidc_iam_user.iam_role_name
 }
