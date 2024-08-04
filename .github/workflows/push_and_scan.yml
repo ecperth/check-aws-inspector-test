@@ -82,8 +82,8 @@ jobs:
         uses: ecperth/check-aws-inspector@v3
         with:
           repository: check-aws-inspector-test
-          image-tag: ${{inputs.use-tag == 'true' && inputs.image-tag}}
-          image-digest: ${{inputs.use-digest == 'true' && steps.build.outputs.digest || ''}}
+          image-tag: ${{inputs.use-tag && inputs.image-tag || ''}}
+          image-digest: ${{inputs.use-digest && steps.build.outputs.digest || ''}}
           fail-on: ${{inputs.fail-on}}
           ignore: ${{inputs.ignore}}
           timeout: ${{inputs.timeout}}
