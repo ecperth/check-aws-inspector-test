@@ -11,9 +11,7 @@ on:
         required: true
         default: amazonlinux:2023
       image-tag:
-        required: false
-      image-digest:
-        required: false
+        required: true
       fail-on:
         type: choice
         description: Severity to cause failure
@@ -31,6 +29,12 @@ on:
         default: '60'
       consistency-delay:
         default: '15'
+      use-tag:
+        type: boolean
+        default: true
+      use-digest:
+        type: boolean
+        default: false
       
 jobs:
   test-check-aws-inspector-action:
@@ -71,18 +75,19 @@ jobs:
           --build-arg TAG=${{github.event.inputs.image-tag}} \
           .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo digest=$(docker images --no-trunc --quiet $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG) >> $GITHUB_OUTPUT
+          echo digest=$(aws ecr describe-images --repository-name check-aws-inspector-test --image-ids imageTag=$IMAGE_TAG | jq '.imageDetails[0].imageDigest' -r) >> $GITHUB_OUTPUT
 
       - name: Check results of aws inspect on image
         id: check-aws-inspector
         uses: ecperth/check-aws-inspector@v3
         with:
           repository: check-aws-inspector-test
-          image-digest: ${{steps.build.outputs.digest}}
-          fail-on: ${{github.event.inputs.fail-on}}
-          ignore: ${{github.event.inputs.ignore}}
-          timeout: ${{github.event.inputs.timeout}}
-          consistency-delay: ${{github.event.inputs.consistency-delay}}
+          image-tag: ${{inputs.use-tag == 'true' && inputs.image-tag}}
+          image-digest: ${{inputs.use-digest == 'true' && steps.build.outputs.digest || ''}}
+          fail-on: ${{inputs.fail-on}}
+          ignore: ${{inputs.ignore}}
+          timeout: ${{inputs.timeout}}
+          consistency-delay: ${{inputs.consistency-delay}}
 
       - name: Print the findings
         if: always()

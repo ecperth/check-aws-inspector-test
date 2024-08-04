@@ -32,7 +32,8 @@ data "aws_iam_policy_document" "role_ecr_policy_document" {
       "ecr:InitiateLayerUpload",
       "ecr:BatchCheckLayerAvailability",
       "ecr:PutImage",
-      "ecr:DescribeImageScanFindings"
+      "ecr:DescribeImageScanFindings",
+      "ecr:DescribeImages"
     ]
     resources = [aws_ecr_repository.check_aws_inspector_test.arn]
   }
