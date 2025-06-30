@@ -79,7 +79,7 @@ jobs:
 
       - name: Check results of aws inspect on image
         id: check-aws-inspector
-        uses: ecperth/check-aws-inspector@v3
+        uses: ecperth/check-aws-inspector@v3.2
         with:
           repository: check-aws-inspector-test
           image-tag: ${{inputs.use-tag && inputs.image-tag || ''}}
