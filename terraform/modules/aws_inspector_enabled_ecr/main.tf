@@ -1,6 +1,7 @@
 //---ECR---
 resource "aws_ecr_repository" "check_aws_inspector_test" {
   name                 = var.ecr_repo_name
+  force_delete         = true
   image_tag_mutability = "MUTABLE"
 }
 
